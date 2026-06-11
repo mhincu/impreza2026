@@ -1,0 +1,6 @@
+{
+  "name": "Urodziny Michala Hub",
+  "description": "Hub informacyjny z okazji 45. urodzin Michala z RSVP i lokalizacja.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
