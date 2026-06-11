@@ -210,7 +210,19 @@ export default function RsvpSection({ rsvps, onAddRsvp }: RsvpSectionProps) {
                       )}
                       
                       <span className="text-[9px] text-zinc-500 font-mono font-extrabold block mt-2">
-                        Potwierdzono: {new Date(rsvp.createdAt).toLocaleString('pl-PL')}
+                        Potwierdzono: {(() => {
+                          try {
+                            const d = new Date(rsvp.createdAt);
+                            if (isNaN(d.getTime())) {
+                              const safeStr = rsvp.createdAt.replace(/\s+/g, 'T');
+                              const d2 = new Date(safeStr);
+                              return isNaN(d2.getTime()) ? rsvp.createdAt : d2.toLocaleString('pl-PL');
+                            }
+                            return d.toLocaleString('pl-PL');
+                          } catch (err) {
+                            return rsvp.createdAt;
+                          }
+                        })()}
                       </span>
                     </div>
                   </div>

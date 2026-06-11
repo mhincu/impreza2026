@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
 // Setup a robust DB_FILE location with a writable fallback for restricted cloud hosting filesystems
 let DB_FILE = path.join(process.cwd(), 'database.json');
@@ -239,7 +239,19 @@ app.get('/api/debug-env', (req, res) => {
 // Configure Vite or Static Assets
 async function start() {
   let distPath = path.join(process.cwd(), 'dist');
-  const isProduction = process.env.NODE_ENV === 'production';
+  
+  // A robust check for production mode (checking PORT, __filename, or NODE_ENV)
+  const isProduction = 
+    process.env.NODE_ENV === 'production' || 
+    (typeof __filename !== 'undefined' && (__filename.endsWith('server.cjs') || __filename.includes('dist')));
+
+  console.log(`[Startup] Diagnostyka:`, {
+    NODE_ENV: process.env.NODE_ENV || 'undefined',
+    PORT,
+    isProduction,
+    __filename: typeof __filename !== 'undefined' ? __filename : 'undefined',
+    cwd: process.cwd()
+  });
 
   if (isProduction) {
     // If we are bundled as CommonJS inside dist/server.cjs, the index.html is actually in __dirname
@@ -258,6 +270,9 @@ async function start() {
     app.use(vite.middlewares);
   } else {
     console.log(`Booting in PRODUCTION mode - serving static files from: ${distPath}`);
+    if (!fs.existsSync(path.join(distPath, 'index.html'))) {
+      console.error(`[CRITICAL] index.html nie istnieje w ścieżce: ${distPath}`);
+    }
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));

@@ -5,22 +5,24 @@ export default function InfoSection() {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   // Countdown to June 20, 2026 starting at 18:00 (since the current local date is June 10, 2026)
+  // We use Date.UTC to guarantee 100% cross-browser parsing compatibility (particularly on iOS/macOS Safari)
+  // June 20, 2026 at 18:00 in Poland summer time (UTC+2) is exactly 16:00:00 UTC
   useEffect(() => {
-    const targetDate = new Date('2026-06-20T18:00:00+02:00').getTime();
+    const targetDate = Date.UTC(2026, 5, 20, 16, 0, 0);
 
     const updateCountdown = () => {
       const now = new Date().getTime();
       const difference = targetDate - now;
 
-      if (difference <= 0) {
+      if (isNaN(difference) || difference <= 0) {
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
         return;
       }
 
-      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+      const days = Math.floor(difference / (1000 * 60 * 60 * 24)) || 0;
+      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)) || 0;
+      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)) || 0;
+      const seconds = Math.floor((difference % (1000 * 60)) / 1000) || 0;
 
       setTimeLeft({ days, hours, minutes, seconds });
     };
